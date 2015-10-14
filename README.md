@@ -1,11 +1,5 @@
 # metadata.poems
 
-view of a group of men
-   leaning over
-  and looking
-    at sheep in a
-   sheep yard.
-
 Script to pull metadata from DigitalNZ description fields and turn them into short poems.
 
 ## Usage
