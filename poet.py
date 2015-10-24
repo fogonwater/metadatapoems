@@ -13,7 +13,7 @@ class Poet:
 
         # select a random source
         source = random.choice([
-            'TAPUHI',
+            #'TAPUHI',
             'Te Papa Collections Online',
             'tv3.co.nz',
         ])
@@ -39,16 +39,13 @@ class Poet:
         return seed
 
     def nurture(self, seed):
-        if random.choice([1,2]) >= 1:
+        seed= seed.encode('utf-8')
+        if random.choice([0,1]):
             seed = seed.lower()
         seed = seed.replace("&apos;", "'")
         seed = seed.replace("&quot;", "'")
-        seed = seed.strip()
 
-        return seed.encode('utf-8')
-
-    def indent(self, max_dent=6):
-        return ' ' * random.choice(range(max_dent))
+        return seed.strip()
 
     def chance(self, chance=0.5):
         if random.random() > chance:
@@ -58,29 +55,59 @@ class Poet:
     def compose(self):
         """ Write poem from metadata seed. """
         seed = self.seed()
-        draft = [self.indent()]
+        draft = []
         parts = seed.split(' ')
 
-        odds = random.randint(40,75) / 100.
-        print odds
+        self.odds = random.randint(42,76) / 100.
+        self.indent_lvl = 0
+        style = random.choice(['abstract', 'cascade'])
+        print self.odds, style
 
         for part in parts:
             part = part.strip()
             draft.append(part)
-
-            if part.endswith((',', '.')):
-                draft.extend(['\n', self.indent()])
-            elif self.chance(odds):
-                draft.extend(['\n', self.indent()])
-            else:
-                draft.append(' ')
-            if self.chance(0.92):
-                draft.append('\n')
+            if style == 'abstract':
+                draft.append(self.abstract_format(part))
+            elif style == 'cascade':
+                draft.append(self.cascade_format(part))
 
         poem = self.edit(draft)
         return poem.encode('utf-8')
 
+    def dent(self, max_dent=6):
+        return ' ' * random.choice(range(max_dent))
+
+    def abstract_format(self, part):
+        element = ''
+        if part.endswith((',', '.')) or self.chance(self.odds):
+            element = '{}{}'.format('\n', self.dent())
+        if self.chance(0.92):
+            if element:
+                element = element + '\n'
+            else:
+                element = '\n\n'
+            self.indent_lvl = random.choice([0, 1])
+        if not element:
+            element = ' '
+        return element
+
+    def cascade_format(self, part):
+        element = ''
+        if part.endswith((',', '.')) or self.chance(self.odds):
+            self.indent_lvl += 1
+            element = '{}{}'.format('\n', ' ' * self.indent_lvl)
+        if self.chance(0.88):
+            if element:
+                element = element + '\n'
+            else:
+                element = '\n\n'
+            self.indent_lvl = random.choice([0, 1])
+        if not element:
+            element = ' '
+        return element
+
     def breaker(self, s):
+        """ Remove hanging sentences """
         if not '.' in s:
             return s
         parts = s.split('.')
